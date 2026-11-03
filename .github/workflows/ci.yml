@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Windows / Zig 0.17.0
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Zig
+        uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # v2
+        with:
+          version: 0.17.0
+
+      - name: Verify Zig version
+        run: |
+          $version = zig version
+          if ($LASTEXITCODE -ne 0 -or $version -ne '0.17.0') {
+            throw "Expected Zig 0.17.0, got '$version'"
+          }
+
+      - name: Build
+        run: zig build
+
+      - name: Test application and all reference solutions
+        run: zig build test
+
+      - name: Smoke test CLI
+        run: |
+          $exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
+          $zig = (Get-Command zig).Source
+          ./tests/smoke.ps1 -Exe $exe -Zig $zig

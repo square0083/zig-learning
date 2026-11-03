@@ -1,5 +1,7 @@
 # 中文 Zig 练习
 
+[![CI](https://github.com/square0083/zig-learning/actions/workflows/ci.yml/badge.svg)](https://github.com/square0083/zig-learning/actions/workflows/ci.yml)
+
 面向已有其他语言经验的 Zig 初学者。36 道独立练习，覆盖基础、控制流、数据建模、可选值与错误、指针与所有权、内存与容器、编译期与泛型、数据处理和综合练习。
 
 ## 开始学习
@@ -74,3 +76,15 @@ pwsh -NoProfile -File ./tests/smoke.ps1 -Exe $exe -Zig $zig
 烟测在带 GUID、中文和空格的系统临时目录运行真实 CLI/编译器，逐项断言退出码：全部初始题失败、全部参考解通过、进度恢复与修改失效、重复初始化保护、缺失文件/编译器和损坏进度等。脚本只清理自己创建的目录，并在结束时恢复当前进程输出编码。
 
 控制台交互需要单独验收：watch 下保存错误/正确代码、删除并重建当前文件、确认未改内容不重复编译，以及在测试实际运行无限循环时按 Ctrl+C，检查 CLI、Zig 和测试进程均退出。普通单元测试不替代这些控制台行为验证。
+
+### 持续集成
+
+[GitHub Actions CI](https://github.com/square0083/zig-learning/actions/workflows/ci.yml) 在每次 push、Pull Request 和手动触发时运行，配置见 [ci.yml](.github/workflows/ci.yml)。
+
+- 环境：Windows runner、固定版本 Zig 0.17.0。
+- 检查：`zig build`、`zig build test` 和完整 `tests/smoke.ps1` 烟测。
+- 同一分支的新运行取消旧运行，单次任务超时为 30 分钟。
+- 仓库权限为只读，Actions 固定到提交 SHA，并缓存 Zig 编译缓存。
+
+交互式 watch 与 Ctrl+C 行为仍需按下节手动验收。
+
