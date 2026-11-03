@@ -14,12 +14,12 @@ concurrency:
 
 jobs:
   test:
-    name: Windows / Zig 0.17.0
-    runs-on: windows-latest
+    name: Linux / Zig 0.17.0
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
       run:
-        shell: pwsh
+        shell: bash
     steps:
       - name: Check out source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -33,10 +33,11 @@ jobs:
 
       - name: Verify Zig version
         run: |
-          $version = zig version
-          if ($LASTEXITCODE -ne 0 -or $version -ne '0.17.0') {
-            throw "Expected Zig 0.17.0, got '$version'"
-          }
+          version=$(zig version)
+          if [[ "$version" != '0.17.0' ]]; then
+            printf "Expected Zig 0.17.0, got '%s'\n" "$version" >&2
+            exit 1
+          fi
 
       - name: Build
         run: zig build
@@ -45,7 +46,4 @@ jobs:
         run: zig build test
 
       - name: Smoke test CLI
-        run: |
-          $exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
-          $zig = (Get-Command zig).Source
-          ./tests/smoke.ps1 -Exe $exe -Zig $zig
+        run: bash ./tests/smoke.sh ./zig-out/bin/zig_learning "$(command -v zig)"
