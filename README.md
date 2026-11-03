@@ -29,7 +29,7 @@
 - **代码编辑器**：任何能编辑 UTF-8 文本的编辑器均可。
 - **UTF-8 终端**：Windows 下若中文显示异常，在当前终端执行 `chcp 65001`。应用不会修改持久终端设置。
 
-```powershell
+```bash
 zig version
 # 预期输出：0.17.0
 ```
@@ -38,14 +38,14 @@ zig version
 
 ### 2. 构建并创建学习目录
 
-在仓库根目录打开 PowerShell：
+在仓库根目录打开 Bash（Linux / macOS）：
 
-```powershell
+```bash
 zig build
-$exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
+exe="$(pwd)/zig-out/bin/zig_learning"
 
-& $exe init ./zig-exercises
-& $exe watch --path ./zig-exercises
+"$exe" init ./zig-exercises
+"$exe" watch --path ./zig-exercises
 ```
 
 用编辑器打开新生成的 **zig-exercises/exercises/01_values.zig**，阅读文件顶部的说明，修改后保存。请修改学习目录中的文件，而不是仓库里的课程模板。
@@ -56,36 +56,38 @@ $exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
 
 `watch` 启动后立即检查当前题，之后每 500ms 比较文件内容。内容未改变时不会重复检查；通过后自动前进。按 Ctrl+C 退出，下次启动时根据已保存的有效进度继续。
 
-需要提示或查看进度时，可以在**另一个终端**中运行以下命令。新终端需要在仓库根目录重新设置 `$exe`：
+需要提示或查看进度时，可以在**另一个终端**中运行以下命令。新终端需要在仓库根目录重新设置 `exe`：
 
-```powershell
-$exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
+```bash
+exe="$(pwd)/zig-out/bin/zig_learning"
 
-& $exe list --path ./zig-exercises
-& $exe hint --path ./zig-exercises
-& $exe hint 01_values --level 2 --path ./zig-exercises
+"$exe" list --path ./zig-exercises
+"$exe" hint --path ./zig-exercises
+"$exe" hint 01_values --level 2 --path ./zig-exercises
 ```
 
 `--level 2` 显示前两层提示，`--level 3` 显示全部三层；不记录提示查看次数。
 
 <details>
-<summary>Bash / macOS / Linux 命令写法</summary>
+<summary>Windows / PowerShell 命令写法</summary>
 
-在仓库根目录构建，使用不带 `.exe` 后缀的可执行文件：
+Windows 使用带 `.exe` 后缀的可执行文件，并通过 `&` 调用：
 
-```bash
+```powershell
 zig build
-./zig-out/bin/zig_learning init ./zig-exercises
-./zig-out/bin/zig_learning watch --path ./zig-exercises
+$exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
+& $exe init ./zig-exercises
+& $exe watch --path ./zig-exercises
 ```
 
-另一个终端中查看提示：
+另一个 PowerShell 终端中查看提示：
 
-```bash
-./zig-out/bin/zig_learning hint --path ./zig-exercises
+```powershell
+$exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
+& $exe hint --path ./zig-exercises
 ```
 
-以上是对应的命令写法；仓库中的端到端烟测使用 PowerShell，其他平台的控制台行为仍需单独验收。
+CI 在 Linux 上运行 Bash 端到端烟测；Windows、macOS 的控制台交互行为仍需单独验收。
 
 </details>
 
@@ -115,7 +117,7 @@ zig build
 zig_learning [选项] <命令> [参数] [选项]
 ```
 
-下表中的命令均接在可执行文件之后，例如 PowerShell 中的 `& $exe list --path ./zig-exercises`。
+下表中的命令均接在可执行文件之后，例如 Bash 中的 `"$exe" list --path ./zig-exercises`。
 
 | 命令 | 行为 |
 | --- | --- |
@@ -143,22 +145,22 @@ zig_learning [选项] <命令> [参数] [选项]
 
 ### 常用操作
 
-以下示例沿用快速开始中设置的 `$exe`，在仓库根目录运行。若 `watch` 正在运行，请先停止它，再执行会写入进度的命令。
+以下示例沿用快速开始中设置的 `exe`，在仓库根目录运行。若 `watch` 正在运行，请先停止它，再执行会写入进度的命令。
 
-```powershell
+```bash
 # 单独检查某一道题，也可用于复习已通过的题
-& $exe run 18_errors --path ./zig-exercises
+"$exe" run 18_errors --path ./zig-exercises
 
 # 检查全部练习
-& $exe verify --path ./zig-exercises
+"$exe" verify --path ./zig-exercises
 
 # 使用指定位置的编译器，含空格的路径需要引号
-& $exe run 01_values --path ./zig-exercises --zig "C:/tools/zig/zig.exe"
+"$exe" run 01_values --path ./zig-exercises --zig "/opt/zig tools/zig"
 ```
 
 也可以通过构建系统运行 CLI，`--` 后的参数会传给应用：
 
-```powershell
+```bash
 zig build run -- --help
 zig build run -- list --path ./zig-exercises
 ```
@@ -230,7 +232,7 @@ zig-exercises/
 
 ### 如何重新开始，又不丢掉原来的答案？
 
-使用 `init` 创建一个新的学习目录，例如 `& $exe init ./zig-exercises-retry`，后续命令改用 `--path ./zig-exercises-retry`。不要对旧目录重复初始化，也不要依赖删除进度文件来重置。
+使用 `init` 创建一个新的学习目录，例如 `"$exe" init ./zig-exercises-retry`，后续命令改用 `--path ./zig-exercises-retry`。不要对旧目录重复初始化，也不要依赖删除进度文件来重置。
 
 ## 开发与验收
 
@@ -250,7 +252,7 @@ src/
     └── checks/                   # 独立行为检查
 tests/
 ├── solutions/                    # 仅供开发验收的参考解
-└── smoke.ps1                     # 真实 CLI 与编译器烟测
+└── smoke.sh                      # 真实 CLI 与编译器烟测
 ```
 
 应用只嵌入模板与检查，不嵌入参考解。课程顺序、题号、章节、目标和提示统一维护在 [catalog.zig](src/course/catalog.zig) 中；构建步骤见 [build.zig](build.zig)。
@@ -259,7 +261,7 @@ tests/
 
 在仓库根目录使用 Zig 0.17.0：
 
-```powershell
+```bash
 zig version
 zig build
 zig build test         # 应用边界行为 + 全部参考解检查
@@ -267,22 +269,20 @@ zig build course-test  # 仅检查全部参考解
 zig build run -- --help
 ```
 
-端到端烟测需要 PowerShell（以下使用 `pwsh`）：
+端到端烟测需要 Bash 和常见 Unix 工具（如 `realpath`、`mktemp`、`cmp`），在 Linux 上运行：
 
-```powershell
-$exe = (Resolve-Path ./zig-out/bin/zig_learning.exe).Path
-$zig = (Get-Command zig).Source
-pwsh -NoProfile -File ./tests/smoke.ps1 -Exe $exe -Zig $zig
+```bash
+bash ./tests/smoke.sh ./zig-out/bin/zig_learning "$(command -v zig)"
 ```
 
-[烟测脚本](tests/smoke.ps1) 在包含 GUID、中文和空格的系统临时目录中调用真实 CLI 与编译器，断言全部 36 个初始模板失败、全部 36 个参考解通过，并验证进度读取、修改失效、重复初始化保护、缺失文件/编译器及损坏进度等行为。脚本只清理自己创建的目录，结束时恢复当前进程的输出编码。
+[烟测脚本](tests/smoke.sh) 在包含随机后缀、中文和空格的系统临时目录中调用真实 CLI 与编译器，断言全部 36 个初始模板失败、全部 36 个参考解通过，并验证进度读取、修改失效、重复初始化保护、缺失文件/编译器及损坏进度等行为。脚本通过 `trap` 在退出时清理自己创建的目录，无需修改终端编码。
 
 ### 持续集成
 
 [GitHub Actions CI](https://github.com/square0083/zig-learning/actions/workflows/ci.yml) 在每次 push、Pull Request 和手动触发时运行，配置见 [ci.yml](.github/workflows/ci.yml)。
 
-- 环境：Windows runner、固定版本 Zig 0.17.0。
-- 检查：`zig build`、`zig build test` 和完整 `tests/smoke.ps1` 烟测。
+- 环境：Linux runner（`ubuntu-latest`）、固定版本 Zig 0.17.0。
+- 检查：`zig build`、`zig build test` 和完整 `tests/smoke.sh` 烟测。
 - 同一分支的新运行取消旧运行，单次任务超时为 30 分钟。
 - 仓库权限为只读，Actions 固定到提交 SHA，并缓存 Zig 编译缓存。
 
